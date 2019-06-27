@@ -62,7 +62,7 @@
 
   <script>
     var params = {
-      runXtimes: 1,
+      runXtimes: 5,
       cityHeight: 30,
       cityWidth: 30,
       occupancy: 0.9,
@@ -206,32 +206,26 @@
     function runPlot() {
       updateVars();
 
-      function sampleRuns() {
-        var cityMat = Array(params.cityHeight)
-          .fill()
-          .map(() => Array(params.cityWidth).fill(0));
+      var cityMat = Array(params.cityHeight)
+        .fill()
+        .map(() => Array(params.cityWidth).fill(0));
 
-        var suburbMat = Array(params2.cityHeight)
-          .fill()
-          .map(() => Array(params2.cityWidth).fill(0));
+      var suburbMat = Array(params2.cityHeight)
+        .fill()
+        .map(() => Array(params2.cityWidth).fill(0));
 
-        populate(cityMat, params);
+      populate(cityMat, params);
 
-        var [countIterations, segmentation] = runShelling(
-          cityMat,
-          params
-          // suburbMat,
-          // params2
-        );
+      var histogram = runXtimes(
+        params
+        // suburbMat,
+        // params2
+      );
 
-        return segmentation;
-      }
-
-      var samples = sampleRuns();
       $("#paramsDiv").text(JSON.stringify(params));
 
       //
-      linePlot("myDiv3", [...samples.keys()], [...samples]);
+      linePlot("myDiv3", [...Object.keys(histogram)], [...histogram]);
     }
 
     runPlot();

@@ -63,18 +63,15 @@ function printMat(mat, params) {
 
 function validProportions(populationProportions) {
   var total = 0.0;
-  var positive = true;
+  var allPositive = true;
+  let epsilon = 0.0000001;
 
   populationProportions.forEach(number => {
-    positive = positive && 0 <= number;
+    allPositive = allPositive && 0 - epsilon < number;
+    total += number;
   });
 
-  if (positive)
-    populationProportions.forEach(fraction => {
-      total += fraction;
-    });
-
-  return positive && total <= 1;
+  return allPositive && total < 1 + epsilon;
 }
 
 // exports.printMat = printMat;
@@ -425,10 +422,12 @@ function shuffle2(mat, params, mat2, params2) {
       }
     }
 
-    printMatUpdated(mat, updatedResidencies, params);
+    // Debug print
+    // printMatUpdated(mat, updatedResidencies, params);
     updatedResidencies = [];
 
-    printMatUpdated(mat2, updatedResidencies2, params2);
+    // Debug print
+    // printMatUpdated(mat2, updatedResidencies2, params2);
     updatedResidencies2 = [];
     // console.log(k, movingNeighbors.length, newHouseFound);
   }
@@ -576,6 +575,10 @@ function runXtimes(params) {
 
   var histogram = [];
 
+  params.populationProportions = params.populationProportions.map(number => {
+    return parseFloat(number);
+  });
+
   if (!validProportions(params.populationProportions)) {
     console.log("invalid populationProportions list.");
     return;
@@ -599,7 +602,7 @@ function runXtimes(params) {
     // Debug
     // printMat(cityMat, params.segmentRatio);
 
-    var index = howLong.toString();
+    var index = howLong.toString(); // TODO: are you sure toString index? Benefit is sparse is ok
     if (histogram[index] == null) histogram[index] = 1;
     else histogram[index] = histogram[index] + 1;
   }
@@ -614,7 +617,7 @@ function printSparseMat(a) {
 
 function test() {
   var params = {
-    runXtimes: 1,
+    runXtimes: 3,
     cityHeight: 30,
     cityWidth: 30,
     occupancy: 0.9,
@@ -667,6 +670,7 @@ function test() {
     // Math.random = seedrandom(params.seed);
     var histogram = runXtimes(params);
     printSparseMat(histogram);
+    console.log(Object.keys(histogram)); // TODO: this is where I left off
   }
 
   function testRun3(params) {
@@ -762,7 +766,7 @@ function test() {
   }
 
   // testRun1(params);
-  testRun6(params, params2);
+  testRun2(params, params2);
 }
 
-test();
+//test();
