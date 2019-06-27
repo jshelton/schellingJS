@@ -1,0 +1,23 @@
+{
+  "name": "schellingnode",
+  "version": "1.0.0",
+  "description": "Generate graphics from simulation schellings",
+  "main": "plot.html",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "/Users/joshua/repository/testPlatform//schellingnode.git"
+  },
+  "author": "Joshua Shelton",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "plotly.js-dist": "^1.45.3",
+    "seedrandom": "^3.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^6.0.2"
+  }
+}

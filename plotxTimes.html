@@ -1,0 +1,244 @@
+<head>
+  <!-- Plotly.js -->
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="plotly-latest.min.js"></script>
+  <script src="shelling-3.js"></script>
+  <script src="node_modules/seedrandom/seedrandom.min.js"></script>
+</head>
+
+<body>
+  <div style="text-align: right">
+    <div>
+      <label for="seedText">Seed:</label><input type="text" id="seedText" />
+    </div>
+    <div>
+      <label for="xtimesText">Number of Times:</label
+      ><input type="text" id="xtimesText" />
+    </div>
+    <div>
+      <label for="occupancyText">Occupancy:</label
+      ><input type="text" id="occupancyText" />
+    </div>
+
+    <div>
+      <label for="segmentThresholdText">Threshold:</label
+      ><input type="text" id="segmentThresholdText" />
+    </div>
+    <div>
+      <span>
+        <label for="propAText">Proportion A:</label
+        ><input type="text" id="propAText" />
+        <label for="propBText">Proportion B:</label
+        ><input type="text" id="propBText" />
+      </span>
+    </div>
+    <div>
+      <span>
+        <label for="cityAText">City A Size:</label
+        ><input type="text" id="cityAText" />
+        <label for="cityBText">City B Size:</label
+        ><input type="text" id="cityBText" />
+      </span>
+    </div>
+    <button type="button" id="runPlot" onclick="runPlot()">Click Me!</button>
+  </div>
+
+  <div>
+    <div id="myDivX1"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div>
+      <label for="iterationsDiv">Iterations:</label>
+      <span id="iterationsDiv"></span>
+    </div>
+    <div>
+      <label for="segmentationDiv">Segmentation:</label>
+      <span id="segmentationDiv"></span>
+    </div>
+    <div>
+      <label for="paramsDiv">params = </label>
+      <span id="paramsDiv"></span>
+    </div>
+    <div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
+  </div>
+
+  <script>
+    var params = {
+      runXtimes: 1,
+      cityHeight: 30,
+      cityWidth: 30,
+      occupancy: 0.9,
+      populationProportions: [0, 0.6, 0.4],
+      segmentRatio: 0.5,
+      seed: "hello"
+    };
+
+    var params2 = { ...params, cityHeight: 7, cityHeight: 7 };
+
+    // Make randomness repeatable
+    var seedString;
+    if (params.seed === "") seedString = "hello";
+    else seedString = params.seed;
+
+    $("#seedText").val(seedString);
+    $("#xtimesText").val(params.runXtimes);
+    $("#occupancyText").val(params.occupancy);
+    $("#segmentThresholdText").val(params.segmentRatio);
+    $("#propAText").val(params.populationProportions[1]);
+    $("#propBText").val(params.populationProportions[2]);
+    $("#cityAText").val(params.cityHeight);
+    $("#cityBText").val(params2.cityHeight);
+
+    function graphPlot(divName, mat) {
+      //var [howLong, segmentedCount] = runShelling(cityMat, params);
+
+      // var histogram = runXtimes(params);
+
+      var colorscaleValue = [[0, "#ffffff"], [0.5, "#001f3f"], [1, "#edf547"]];
+      var data = [
+        {
+          z: mat,
+          type: "heatmap",
+          colorscale: colorscaleValue,
+          showscale: false,
+          showticklabels: false
+        }
+      ];
+
+      var axisTemplate = {
+        // range: [0, 1.6],
+        // autorange: false,
+        showgrid: false,
+        zeroline: false,
+        linecolor: "black",
+        showticklabels: false,
+        ticks: ""
+      };
+
+      var layout = {
+        //title: "Heatmap with Unequal Block Sizes",
+        margin: {
+          t: 20,
+          r: 20,
+          b: 20,
+          l: 20
+        },
+        showlegend: false,
+        xaxis: axisTemplate,
+        yaxis: axisTemplate,
+        width: 300,
+        height: 300,
+        autosize: false
+      };
+
+      Plotly.newPlot(divName, data, layout, { showSendToCloud: false });
+    }
+
+    function linePlot(divName, x_array, y_array) {
+      var trace1 = {
+        x: x_array,
+        y: y_array,
+        mode: "lines+markers",
+        type: "scatter"
+      };
+
+      var data = [trace1];
+
+      var layout = {
+        //title: "Heatmap with Unequal Block Sizes",
+        margin: {
+          t: 20,
+          r: 20,
+          b: 20,
+          l: 20
+        },
+        // showlegend: false,
+        // xaxis: axisTemplate,
+        // yaxis: axisTemplate,
+        width: 300,
+        height: 300,
+        autosize: false
+      };
+
+      Plotly.newPlot(divName, data, layout);
+    }
+
+    function updateVars() {
+      if ($("#seedText").val() !== "") {
+        params.seed = seedString = $("#seedText").val();
+      }
+
+      if ($("#xtimesText").val() !== "") {
+        params.runXtimes = $("#xtimesText").val();
+      }
+
+      if ($("#occupancyText").val() !== "") {
+        params.occupancy = $("#occupancyText").val();
+      }
+
+      if ($("#segmentThresholdText").val() !== "") {
+        params.segmentRatio = $("#segmentThresholdText").val();
+      }
+      if ($("#propAText").val() !== "") {
+        params.populationProportions[1] = $("#propAText").val();
+      }
+      if ($("#propBText").val() !== "") {
+        params.populationProportions[2] = $("#propBText").val();
+      }
+
+      if ($("#cityAText").val() !== "") {
+        params.cityHeight = params.cityWidth = parseInt(
+          $("#cityAText").val(),
+          10
+        );
+      }
+
+      if ($("#cityBText").val() !== "") {
+        params2.cityHeight = params2.cityWidth = parseInt(
+          $("#cityBText").val(),
+          10
+        );
+      }
+
+      $("#seedDiv").text(seedString);
+      Math.seedrandom(seedString);
+      $("#seedText").val(Math.random());
+    }
+
+    function runPlot() {
+      updateVars();
+
+      function iterate() {
+        var cityMat = Array(params.cityHeight)
+          .fill()
+          .map(() => Array(params.cityWidth).fill(0));
+
+        var suburbMat = Array(params2.cityHeight)
+          .fill()
+          .map(() => Array(params2.cityWidth).fill(0));
+
+        populate(cityMat, params);
+
+        var [countIterations, segmentation] = runShelling(
+          cityMat,
+          params
+          // suburbMat,
+          // params2
+        );
+      }
+
+      $("#paramsDiv").text(JSON.stringify(params));
+
+      //
+      linePlot("myDiv3", [...segmentation.keys()], [...segmentation]);
+    }
+
+    runPlot();
+
+    // params = {"runXtimes":"5","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.8399625918025163"}
+    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6043005772035918"}
+    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6007382711781479"}
+    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6043005772035918"}
+
+    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.3","seed":"0.2267383503609132"}
+    // params = {"runXtimes":"1","cityHeight":20,"cityWidth":20,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.4","seed":"0.4761834269143084"}
+  </script>
+</body>
