@@ -206,7 +206,7 @@
     function runPlot() {
       updateVars();
 
-      function iterate() {
+      function sampleRuns() {
         var cityMat = Array(params.cityHeight)
           .fill()
           .map(() => Array(params.cityWidth).fill(0));
@@ -223,12 +223,15 @@
           // suburbMat,
           // params2
         );
+
+        return segmentation;
       }
 
+      var samples = sampleRuns();
       $("#paramsDiv").text(JSON.stringify(params));
 
       //
-      linePlot("myDiv3", [...segmentation.keys()], [...segmentation]);
+      linePlot("myDiv3", [...samples.keys()], [...samples]);
     }
 
     runPlot();
