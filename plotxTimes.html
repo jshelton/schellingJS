@@ -54,6 +54,10 @@
       <span id="segmentationDiv"></span>
     </div>
     <div>
+      <label for="failedToStop">Failed to Stop:</label>
+      <span id="failedToStop"></span>
+    </div>
+    <div>
       <label for="paramsDiv">params = </label>
       <span id="paramsDiv"></span>
     </div>
@@ -62,13 +66,17 @@
 
   <script>
     var params = {
-      runXtimes: 5,
+      runXtimes: 50,
       cityHeight: 30,
       cityWidth: 30,
       occupancy: 0.9,
       populationProportions: [0, 0.6, 0.4],
       segmentRatio: 0.5,
       seed: "hello"
+
+      // Seed with one 2000
+      // seed: 0.8024624793347311
+      // seed: "0.8051979114263961"
     };
 
     var params2 = { ...params, cityHeight: 7, cityHeight: 7 };
@@ -203,9 +211,7 @@
       $("#seedText").val(Math.random());
     }
 
-    function runPlot() {
-      updateVars();
-
+    function runSession(params, params2) {
       var cityMat = Array(params.cityHeight)
         .fill()
         .map(() => Array(params.cityWidth).fill(0));
@@ -215,27 +221,68 @@
         .map(() => Array(params2.cityWidth).fill(0));
 
       populate(cityMat, params);
+      // populate city but suburbs are empty
 
-      var histogram = runXtimes(
-        params
-        // suburbMat,
-        // params2
+      var [iterations, segmentation] = runShelling2(
+        cityMat,
+        params,
+        suburbMat,
+        params2
       );
 
-      $("#paramsDiv").text(JSON.stringify(params));
+      return [iterations, segmentation];
+    }
 
-      //
-      linePlot("myDiv3", [...Object.keys(histogram)], [...histogram]);
+    // Called by Button
+    function runPlot() {
+      updateVars();
+      var histogram = [];
+
+      segmentationAvg = 0;
+
+      for (var i = 0; i < params.runXtimes; i++) {
+        [iterations, segmentation] = runSession(params, params2);
+
+        var index = iterations.toString();
+        if (histogram[index] == null) histogram[index] = 1;
+        else histogram[index] = histogram[index] + 1;
+        segmentationAvg +=
+          segmentation.pop() /
+          (params.cityHeight *
+            params.cityWidth *
+            params.occupancy *
+            params.runXtimes);
+      }
+
+      $("#iterationsDiv").text(iterations);
+      $("#segmentationDiv").text(segmentationAvg);
+
+      // TODO: build a histogram with the average number of iteration per population size relative to city size/ crowd size for minor or majority
+      $("#paramsDiv").text(JSON.stringify(params));
+      // graphPlot("myDiv2", cityMat);
+      // graphPlot("myDiv22", suburbMat);
+
+      $("#failedToStop").text(
+        //params.cityHeight * params.cityWidth * params.occupancy
+        // Object.keys(histogram)
+        // Object.keys(histogram).length
+
+        // histogram.filter(number => number !== null)
+        function() {
+          if (histogram[2000] !== null) {
+            return histogram[2000];
+          } else {
+            return "none";
+          }
+        }
+      );
+
+      delete histogram[2000];
+
+      filteredHisto = histogram.filter(number => number !== null);
+      linePlot("myDiv3", [...Object.keys(histogram)], [...filteredHisto]);
     }
 
     runPlot();
-
-    // params = {"runXtimes":"5","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.8399625918025163"}
-    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6043005772035918"}
-    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6007382711781479"}
-    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.6043005772035918"}
-
-    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.3","seed":"0.2267383503609132"}
-    // params = {"runXtimes":"1","cityHeight":20,"cityWidth":20,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.4","seed":"0.4761834269143084"}
   </script>
 </body>

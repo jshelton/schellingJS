@@ -486,6 +486,20 @@ function runShelling(mat, params) {
 
 // exports.runShelling = runShelling;
 
+Array.prototype.remove = function() {
+  var what,
+    a = arguments,
+    L = a.length,
+    ax;
+  while (L && this.length) {
+    what = a[--L];
+    while ((ax = this.indexOf(what)) !== -1) {
+      this.splice(ax, 1);
+    }
+  }
+  return this;
+};
+
 function runShelling2(mat, params, mat2, params2) {
   var populationSize = getInitialPopulation(params);
   var prevDiscomforted = populationSize + 2;
@@ -602,7 +616,7 @@ function runXtimes(params) {
     // Debug
     // printMat(cityMat, params.segmentRatio);
 
-    var index = howLong.toString(); // TODO: are you sure toString index? Benefit is sparse is ok
+    var index = howLong.toString(); // string index is to force sparse matrix
     if (histogram[index] == null) histogram[index] = 1;
     else histogram[index] = histogram[index] + 1;
   }
