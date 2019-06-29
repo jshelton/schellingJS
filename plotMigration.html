@@ -227,7 +227,8 @@
 
       $("#iterationsDiv").text(iterations);
       $("#segmentationDiv").text(
-        segmentation.pop() / (params.cityHeight * params.cityWidth)
+        segmentation.pop() /
+          (params.cityHeight * params.cityWidth * params.occupancy)
       );
 
       $("#paramsDiv").text(JSON.stringify(params));
