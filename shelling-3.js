@@ -629,6 +629,8 @@ function printSparseMat(a) {
 }
 // exports.printSparseMat = printSparseMat;
 
+const average = arr => arr.reduce((p, c) => p + c, 0) / Object.keys(arr).length;
+
 function test() {
   var params = {
     runXtimes: 3,

@@ -40,7 +40,12 @@
         ><input type="text" id="cityBText" />
       </span>
     </div>
-    <button type="button" id="runPlot" onclick="runPlot()">Click Me!</button>
+    <button type="button" id="runPlot" onclick="runPlot()">
+      Run New Simulation
+    </button>
+    <button type="button" id="runOldPlot" onclick="runOldPlot()">
+      Run Old Simulation
+    </button>
   </div>
 
   <div>
@@ -56,6 +61,10 @@
     <div>
       <label for="failedToStop">Failed to Stop:</label>
       <span id="failedToStop"></span>
+    </div>
+    <div>
+      <label for="average">Average:</label>
+      <span id="average"></span>
     </div>
     <div>
       <label for="paramsDiv">params = </label>
@@ -79,6 +88,7 @@
       // seed: "0.8051979114263961"
     };
 
+    var oldSeed;
     var params2 = { ...params, cityHeight: 7, cityHeight: 7 };
 
     // Make randomness repeatable
@@ -205,10 +215,7 @@
           10
         );
       }
-
-      $("#seedDiv").text(seedString);
-      Math.seedrandom(seedString);
-      $("#seedText").val(Math.random());
+      $("#seedText").val(seedString);
     }
 
     function runSession(params, params2) {
@@ -233,9 +240,18 @@
       return [iterations, segmentation];
     }
 
-    // Called by Button
     function runPlot() {
+      oldSeed = seedString;
+      Math.seedrandom(seedString);
+      seedString = Math.random();
+
+      runOldPlot();
+    }
+
+    // Called by Button
+    function runOldPlot() {
       updateVars();
+
       var histogram = [];
 
       segmentationAvg = 0;
@@ -278,6 +294,8 @@
       );
 
       delete histogram[2000];
+
+      $("#average").text(average(histogram));
 
       filteredHisto = histogram.filter(number => number !== null);
       linePlot("myDiv3", [...Object.keys(histogram)], [...filteredHisto]);
