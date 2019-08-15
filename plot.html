@@ -16,6 +16,10 @@
       ><input type="text" id="xtimesText" />
     </div>
     <div>
+      <label for="cityHeight">Size of City (Square):</label
+      ><input type="text" id="cityHeight" />
+    </div>
+    <div>
       <label for="occupancyText">Occupancy:</label
       ><input type="text" id="occupancyText" />
     </div>
@@ -88,6 +92,7 @@
 
     $("#seedText").val(seedString);
     $("#xtimesText").val(params.runXtimes);
+    $("#cityHeight").val(params.cityHeight);
     $("#occupancyText").val(params.occupancy);
     $("#segmentThresholdText").val(params.segmentRatio);
     $("#propAText").val(params.populationProportions[1]);
@@ -168,6 +173,12 @@
     }
 
     function runPlot() {
+
+      if ($("#cityHeight").val() !== "") {
+        params.cityHeight = parseInt($("#cityHeight").val());
+        params.cityWidth = params.cityHeight;
+      }
+
       var cityMat = Array(params.cityHeight)
         .fill()
         .map(() => Array(params.cityWidth).fill(0));
@@ -183,6 +194,8 @@
       if ($("#xtimesText").val() !== "") {
         params.runXtimes = $("#xtimesText").val();
       }
+
+      
       if ($("#occupancyText").val() !== "") {
         params.occupancy = $("#occupancyText").val();
       }
