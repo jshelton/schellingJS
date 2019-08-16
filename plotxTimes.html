@@ -220,7 +220,7 @@
       $("#seedText").val(seedString);
     }
 
-    function runSession(params, params2) {
+    function runOnce(params, params2) {
       var cityMat = Array(params.cityHeight)
         .fill()
         .map(() => Array(params.cityWidth).fill(0));
@@ -258,7 +258,7 @@
       segmentationAvg = 0;
 
       for (var i = 0; i < params.runXtimes; i++) {
-        [iterations, segmentation] = runSession(params, params2);
+        [iterations, segmentation] = runOnce(params, params2);
 
         var index = iterations.toString();
         if (histogram[index] == null) histogram[index] = 1;
