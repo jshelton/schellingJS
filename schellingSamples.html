@@ -323,8 +323,8 @@
   
         $("#average").text(average(histogramIterations));
         
-        var lowRange = Object.keys(histogramIterations)[0]
-        var highRange = Object.keys(histogramIterations).pop();
+        var lowRange = parseInt(Object.keys(histogramIterations)[0]);
+        var highRange = parseInt(Object.keys(histogramIterations).pop());
 
         for (var i = lowRange; i <= highRange; i++)
         {
