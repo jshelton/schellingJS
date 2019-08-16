@@ -320,9 +320,9 @@
         // Object.keys(histogramIterations)
         // Object.keys(histogramIterations).length
 
-        // histogramIterations.filter(number => number !== null)
+        // histogramIterations.filter(number => number != null)
         function() {
-          if (histogramIterations[2000] !== null) {
+          if (histogramIterations[2000] != null) {
             return histogramIterations[2000];
           } else {
             return "none";
@@ -343,7 +343,7 @@
           histogramIterations[i]=0;
       }
 
-      filteredHistogram = histogramIterations.filter(number => number !== null);
+      filteredHistogram = histogramIterations.filter(number => number != null);
       linePlot("myDiv3", [...Object.keys(histogramIterations)], [...filteredHistogram]);
     }
 
