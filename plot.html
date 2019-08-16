@@ -170,38 +170,37 @@
         width: 600,
         height: 400,
         autosize: false,
-  title: {
-    text:'Segregated Households',
-    // font: {
-      // family: 'Courier New, monospace',
-      // size: 24
-    // },
-    xref: 'paper',
-    x: 0.05,
-  },
-  xaxis: {
-    automargin: true,
-    title: {
-      text: 'Iterations',
-      font: {
-        // family: 'Courier New, monospace',
-        size: 18,
-        color: '#7f7f7f'
-      }
-    },
-  },
-  yaxis: {
-    automargin: true,
-    title: {
-      text: 'segragated households',
-      font: {
-        // family: 'Courier New, monospace',
-        size: 18,
-        color: '#7f7f7f'
-      }
-    }
-  }
-
+        title: {
+          text:'Segregated Households',
+          // font: {
+            // family: 'Courier New, monospace',
+            // size: 24
+          // },
+          xref: 'paper',
+          x: 0.05,
+        },
+        xaxis: {
+          automargin: true,
+          title: {
+            text: 'Iterations',
+            font: {
+              // family: 'Courier New, monospace',
+              size: 18,
+              color: '#7f7f7f'
+            }
+          },
+        },
+        yaxis: {
+          automargin: true,
+          title: {
+            text: 'segragated households',
+            font: {
+              // family: 'Courier New, monospace',
+              size: 18,
+              color: '#7f7f7f'
+            }
+          }
+        }
       };
 
       Plotly.newPlot(divName, data, layout);

@@ -72,6 +72,10 @@
       <label for="paramsDiv">params = </label>
       <span id="paramsDiv"></span>
     </div>
+    <div>
+      <label for="params2Div">params2 = </label>
+      <span id="params2Div"></span>
+    </div>
     <div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
   </div>
 
@@ -91,7 +95,7 @@
     };
 
     var oldSeed;
-    var params2 = { ...params, cityHeight: 7, cityHeight: 7 };
+    var params2 = { cityHeight: 7, cityWidth: 7 };
 
     // Make randomness repeatable
     var seedString;
@@ -110,7 +114,7 @@
     function graphPlot(divName, mat) {
       //var [howLong, segmentedCount] = runShelling(cityMat, params);
 
-      // var histogram = runXtimes(params);
+      // var histogramIterations = runXtimes(params);
 
       var colorscaleValue = [[0, "#ffffff"], [0.5, "#001f3f"], [1, "#edf547"]];
       var data = [
@@ -165,17 +169,48 @@
       var layout = {
         //title: "Heatmap with Unequal Block Sizes",
         margin: {
-          t: 20,
-          r: 20,
-          b: 20,
-          l: 20
+          t: 60,
+          r: 60,
+          b: 60,
+          l: 60
         },
-        // showlegend: false,
+        // showlegend: true,
         // xaxis: axisTemplate,
         // yaxis: axisTemplate,
-        width: 300,
-        height: 300,
-        autosize: false
+        width: 600,
+        height: 400,
+        autosize: false,
+        title: {
+          text:'Histogram -  Suburbs - How long until equilibrium',
+          // font: {
+            // family: 'Courier New, monospace',
+            // size: 24
+          // },
+          xref: 'paper',
+          x: 0.05,
+        },
+        xaxis: {
+          automargin: true,
+          title: {
+            text: 'Number of iterations in simulation',
+            font: {
+              // family: 'Courier New, monospace',
+              size: 18,
+              color: '#7f7f7f'
+            }
+          },
+        },
+        yaxis: {
+          automargin: true,
+          title: {
+            text: 'Frequency',
+            font: {
+              // family: 'Courier New, monospace',
+              size: 18,
+              color: '#7f7f7f'
+            }
+          }
+        }
       };
 
       Plotly.newPlot(divName, data, layout);
@@ -232,14 +267,14 @@
       populate(cityMat, params);
       // populate city but suburbs are empty
 
-      var [iterations, segmentation] = runShelling2(
+      var [iterations, segregation] = runShelling2(
         cityMat,
         params,
         suburbMat,
         params2
       );
 
-      return [iterations, segmentation];
+      return [iterations, segregation];
     }
 
     function runPlot() {
@@ -253,18 +288,18 @@
       Math.seedrandom(seedString);
       $("#seedText").val(Math.random());
 
-      var histogram = [];
+      var histogramIterations = [];
 
-      segmentationAvg = 0;
+      segregationAvg = 0;
 
       for (var i = 0; i < params.runXtimes; i++) {
-        [iterations, segmentation] = runOnce(params, params2);
+        [iterations, segregation] = runOnce(params, params2);
 
         var index = iterations.toString();
-        if (histogram[index] == null) histogram[index] = 1;
-        else histogram[index] = histogram[index] + 1;
-        segmentationAvg +=
-          segmentation.pop() /
+        if (histogramIterations[index] == null) histogramIterations[index] = 1;
+        else histogramIterations[index] = histogramIterations[index] + 1;
+        segregationAvg +=
+          segregation.pop() /
           (params.cityHeight *
             params.cityWidth *
             params.occupancy *
@@ -272,34 +307,46 @@
       }
 
       $("#iterationsDiv").text(iterations);
-      $("#segregationDiv").text(segmentationAvg);
+      $("#segregationDiv").text(segregationAvg);
 
-      // TODO: build a histogram with the average number of iteration per population size relative to city size/ crowd size for minor or majority
+      // TODO: build a histogramIterations with the average number of iteration per population size relative to city size/ crowd size for minor or majority
       $("#paramsDiv").text(JSON.stringify(params));
+      $("#params2Div").text(JSON.stringify(params2));
       // graphPlot("myDiv2", cityMat);
       // graphPlot("myDiv22", suburbMat);
 
       $("#failedToStop").text(
         //params.cityHeight * params.cityWidth * params.occupancy
-        // Object.keys(histogram)
-        // Object.keys(histogram).length
+        // Object.keys(histogramIterations)
+        // Object.keys(histogramIterations).length
 
-        // histogram.filter(number => number !== null)
+        // histogramIterations.filter(number => number !== null)
         function() {
-          if (histogram[2000] !== null) {
-            return histogram[2000];
+          if (histogramIterations[2000] !== null) {
+            return histogramIterations[2000];
           } else {
             return "none";
           }
         }
       );
 
-      delete histogram[2000];
+      delete histogramIterations[2000];
 
-      $("#average").text(average(histogram));
+      $("#average").text(average(histogramIterations));
 
-      filteredHisto = histogram.filter(number => number !== null);
-      linePlot("myDiv3", [...Object.keys(histogram)], [...filteredHisto]);
+         var lowRange = Object.keys(histogramIterations)[0]
+        var highRange = Object.keys(histogramIterations).pop();
+
+        for (var i = lowRange; i <= highRange; i++)
+        {
+            if (histogramIterations[i] == null ) 
+            histogramIterations[i]=0;
+        }
+
+
+
+      filteredHistogram = histogramIterations.filter(number => number !== null);
+      linePlot("myDiv3", [...Object.keys(histogramIterations)], [...filteredHistogram]);
     }
 
     runPlot();

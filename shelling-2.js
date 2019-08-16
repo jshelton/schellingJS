@@ -522,3 +522,5 @@ function testRun4(params) {
 }
 
 //testRun2(params);
+
+const average = arr => arr.reduce((p, c) => p + c, 0) / Object.keys(arr).length;
