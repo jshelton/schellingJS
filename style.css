@@ -1,0 +1,17 @@
+#myDiv #myDiv2 #myDiv3 {
+    /* background:yellow; */
+    /* width:400px; */
+    /* height:200px; */
+    margin:2em; padding:2em; border:2em;
+  }
+  div div{
+    margin:0; padding:0; border:0;
+    /* background:red; */
+  }
+  
+  plot_ly(
+    ...
+  ) %>%
+    layout(
+      margin = list(b = 50, l = 50) # to fully display the x and y axis labels
+    )

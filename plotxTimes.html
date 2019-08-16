@@ -41,11 +41,9 @@
       </span>
     </div>
     <button type="button" id="runPlot" onclick="runPlot()">
-      Run New Simulation
+      click to run!
     </button>
-    <button type="button" id="runOldPlot" onclick="runOldPlot()">
-      Run Old Simulation
-    </button>
+    
   </div>
 
   <div>
@@ -55,8 +53,12 @@
       <span id="iterationsDiv"></span>
     </div>
     <div>
-      <label for="segmentationDiv">Segmentation:</label>
-      <span id="segmentationDiv"></span>
+      <label for="segregationDiv">Average Segregation:</label>
+      <span id="segregationDiv"></span>
+    </div>
+    <div>
+      <label for="seedDiv">Seed:</label>
+      <span id="seedDiv"></span>
     </div>
     <div>
       <label for="failedToStop">Failed to Stop:</label>
@@ -179,7 +181,7 @@
       Plotly.newPlot(divName, data, layout);
     }
 
-    function updateVars() {
+    function readInputs() {
       if ($("#seedText").val() !== "") {
         params.seed = seedString = $("#seedText").val();
       }
@@ -241,16 +243,15 @@
     }
 
     function runPlot() {
-      oldSeed = seedString;
+
+
+   
+      readInputs();
+
+
+      $("#seedDiv").text(seedString);
       Math.seedrandom(seedString);
-      seedString = Math.random();
-
-      runOldPlot();
-    }
-
-    // Called by Button
-    function runOldPlot() {
-      updateVars();
+      $("#seedText").val(Math.random());
 
       var histogram = [];
 
@@ -271,7 +272,7 @@
       }
 
       $("#iterationsDiv").text(iterations);
-      $("#segmentationDiv").text(segmentationAvg);
+      $("#segregationDiv").text(segmentationAvg);
 
       // TODO: build a histogram with the average number of iteration per population size relative to city size/ crowd size for minor or majority
       $("#paramsDiv").text(JSON.stringify(params));

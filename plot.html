@@ -4,6 +4,8 @@
   <script src="plotly-latest.min.js"></script>
   <script src="shelling-2.js"></script>
   <script src="node_modules/seedrandom/seedrandom.min.js"></script>
+  <link href="style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body>
@@ -51,8 +53,8 @@
       <span id="iterationsDiv"></span>
     </div>
     <div>
-      <label for="segmentationDiv">Segmentation:</label>
-      <span id="segmentationDiv"></span>
+      <label for="segregationDiv">Segregation:</label>
+      <span id="segregationDiv"></span>
     </div>
     <div>
       <label for="paramsDiv">params = </label>
@@ -135,8 +137,8 @@
         showlegend: false,
         xaxis: axisTemplate,
         yaxis: axisTemplate,
-        width: 300,
-        height: 300,
+        width: 350,
+        height: 350,
         autosize: false
       };
 
@@ -147,6 +149,7 @@
       var trace1 = {
         x: x_array,
         y: y_array,
+        name: "Segregated Households",
         mode: "lines+markers",
         type: "scatter"
       };
@@ -156,17 +159,49 @@
       var layout = {
         //title: "Heatmap with Unequal Block Sizes",
         margin: {
-          t: 20,
-          r: 20,
-          b: 20,
-          l: 20
+          t: 60,
+          r: 60,
+          b: 60,
+          l: 60
         },
-        // showlegend: false,
+        // showlegend: true,
         // xaxis: axisTemplate,
         // yaxis: axisTemplate,
-        width: 300,
-        height: 300,
-        autosize: false
+        width: 600,
+        height: 400,
+        autosize: false,
+  title: {
+    text:'Segregated Households',
+    // font: {
+      // family: 'Courier New, monospace',
+      // size: 24
+    // },
+    xref: 'paper',
+    x: 0.05,
+  },
+  xaxis: {
+    automargin: true,
+    title: {
+      text: 'Iterations',
+      font: {
+        // family: 'Courier New, monospace',
+        size: 18,
+        color: '#7f7f7f'
+      }
+    },
+  },
+  yaxis: {
+    automargin: true,
+    title: {
+      text: 'segragated households',
+      font: {
+        // family: 'Courier New, monospace',
+        size: 18,
+        color: '#7f7f7f'
+      }
+    }
+  }
+
       };
 
       Plotly.newPlot(divName, data, layout);
@@ -215,16 +250,20 @@
 
       populate(cityMat, params);
       graphPlot("myDiv", cityMat);
-      var [iterations, segmentation] = runShelling(cityMat, params);
+      var [numberofInterations, segregation] = runShelling(cityMat, params);
 
-      $("#iterationsDiv").text(iterations);
-      $("#segmentationDiv").text(
-        segmentation.pop() / (params.cityHeight * params.cityWidth)
-      );
 
       $("#paramsDiv").text(JSON.stringify(params));
       graphPlot("myDiv2", cityMat);
-      linePlot("myDiv3", [...segmentation.keys()], [...segmentation]);
+      linePlot("myDiv3", [...segregation.keys()], [...segregation]);
+
+      $("#iterationsDiv").text(numberofInterations);
+      $("#segregationDiv").text(
+        segregation.pop() / (params.cityHeight * params.cityWidth)
+      );
+
     }
+
+    runPlot()
   </script>
 </body>

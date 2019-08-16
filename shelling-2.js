@@ -143,7 +143,7 @@ function printMatUpdated(mat, updatedResidencies, { segmentRatio }) {
   console.log("]");
 }
 
-function segmented(mat, x, y, seg) {
+function segregatedNum(mat, x, y, seg) {
   if (seg == Segment.none) return false;
   var counter = Array(Object.keys(Segment).length).fill(0);
 
@@ -225,14 +225,14 @@ function countUnconfortable(mat, params) {
   return discomforted;
 }
 
-function countSegmented(mat, params) {
-  var segmentedCount = 0;
+function countSegregated(mat, params) {
+  var segregatedCount = 0;
   for (var i = 0; i < mat.length; i++) {
     for (var j = 0; j < mat[0].length; j++) {
-      if (segmented(mat, i, j, mat[i][j], params)) segmentedCount++;
+      if (segregatedNum(mat, i, j, mat[i][j], params)) segregatedCount++;
     }
   }
-  return segmentedCount;
+  return segregatedCount;
 }
 
 function shuffle(mat, params) {
@@ -327,8 +327,8 @@ function runShelling(a, params) {
   var prevDiscomforted = populationSize + 2;
 
   var discomforted = populationSize + 1;
-  var segmentedCount = [];
-  segmentedCount.push(countSegmented(a, params));
+  var segregatedCount = [];
+  segregatedCount.push(countSegregated(a, params));
 
   var iterationCount = 0;
 
@@ -339,12 +339,12 @@ function runShelling(a, params) {
 
     if (!shuffle(a, params)) {
       console.error("Error finding a new place for a neighbor");
-      return [-1, segmentedCount, "Error finding a new place for a neighbor"];
+      return [-1, segregatedCount, "Error finding a new place for a neighbor"];
     }
 
     discomforted = countUnconfortable(a, params);
 
-    segmentedCount.push(countSegmented(a, params));
+    segregatedCount.push(countSegregated(a, params));
 
     // Debug Between shuffle iterations
     // {
@@ -362,7 +362,7 @@ function runShelling(a, params) {
     // }
   }
 
-  return [iterationCount, segmentedCount];
+  return [iterationCount, segregatedCount];
 }
 
 function printList(params) {
@@ -416,7 +416,7 @@ function runXtimes(params) {
     // Debug
     // printMat(cityMat, params);
 
-    var [howLong, segmentedCount] = runShelling(cityMat, params);
+    var [howLong, segregatedCount] = runShelling(cityMat, params);
 
     // Debug
     // printMat(cityMat, params.segmentRatio);
@@ -455,7 +455,7 @@ function testRun0(params) {
 
   printMat(cityMat, params);
 
-  var [howLong, segmentedCount] = runShelling(cityMat, params);
+  var [howLong, segregatedCount] = runShelling(cityMat, params);
   printMat(cityMat, params);
   printList(params);
 }
