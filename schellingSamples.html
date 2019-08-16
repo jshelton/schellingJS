@@ -4,6 +4,8 @@
     <script src="plotly-latest.min.js"></script>
     <script src="shelling-2.js"></script>
     <script src="node_modules/seedrandom/seedrandom.min.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css">
+
   </head>
   
   <body>
@@ -41,6 +43,9 @@
       <button type="button" id="runSamples" onclick="runPlot()">
         click to run!
       </button>
+      <button type="button" id="runSamplingTest" onclick="runSamplingTest()">
+        click to test Accross parameters.
+      </button>
       
     </div>
   
@@ -70,8 +75,16 @@
         <label for="paramsDiv">params = </label>
         <span id="paramsDiv"></span>
       </div>
+    </div>
+    <div>
+      <section class="container">
       <div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
       <div id="myDiv4"><!-- Plotly chart will be drawn inside this DIV --></div>
+    </section>
+    <section class="container">
+      <div id="sampleIterationsGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
+      <div id="sampleSegragationsGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
+    </section>
     </div>
   
     <script>
@@ -277,7 +290,7 @@
       }
 
       function readInputs(initialParams) {
-        var params = initialParams;
+        var params = {...initialParams};
 
         if ($("#seedText").val() !== "") {
           params.seed = seedString = $("#seedText").val();
@@ -432,8 +445,50 @@
 
       }
 
-      runPlot();
+    function sampleAcrossParameter(params, parameterName, valueRange ){
 
+        var averages = {};
+        averages.iterations = []
+        averages.segregations = []
+
+        var errorCount = 0;
+
+        valueRange.forEach(parameterValue => {
+        
+          p = {...params};
+          p[parameterName] = parameterValue
+
+          var sampleInfo = runSamples(p);
+        
+          if (sampleInfo.error != 0 ) {
+            errorCount++;
+          }
+          else{
+            averages.iterations.push(sampleInfo.averageIterations);
+            averages.segregations.push(sampleInfo.averageSegregation);
+          }
+        });
+        
+        return {...averages,error:errorCount,errorMessage:"no errors"};
+    }
+
+
+
+      function testParameterRange(){
+        var range = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+        var aggregatedSamples = sampleAcrossParameter(params,'occupancy',range);
+        // return aggregatedSamples;
+
+        linePlot("sampleIterationsGraph", range, aggregatedSamples.iterations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
+        linePlot("sampleSegragationsGraph", range, aggregatedSamples.segregations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
+        
+      }
+      
+      function runSamplingTest(){
+        testParameterRange();
+      }
+
+      
 
 
     </script>
