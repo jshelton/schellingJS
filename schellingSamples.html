@@ -38,7 +38,7 @@
           ><input type="text" id="cityAText" />
         </span>
       </div>
-      <button type="button" id="runPlot" onclick="runPlot()">
+      <button type="button" id="runSamples" onclick="runPlot()">
         click to run!
       </button>
       
@@ -276,13 +276,15 @@
         Plotly.newPlot(divName, data, layout);
       }
 
-      function readInputs() {
+      function readInputs(initialParams) {
+        var params = initialParams;
+
         if ($("#seedText").val() !== "") {
           params.seed = seedString = $("#seedText").val();
         }
   
         if ($("#xtimesText").val() !== "") {
-          params.runXtimes = $("#xtimesText").val();
+          params.runXtimes = parseInt($("#xtimesText").val());
         }
   
         if ($("#occupancyText").val() !== "") {
@@ -292,7 +294,11 @@
         if ($("#segmentThresholdText").val() !== "") {
           params.segmentRatio = $("#segmentThresholdText").val();
         }
+
         if ($("#propAText").val() !== "") {
+          if (params.populationProportions === undefined) 
+          params.populationProportions = [];
+
           params.populationProportions[1] = $("#propAText").val();
         }
         if ($("#propBText").val() !== "") {
@@ -308,6 +314,8 @@
   
         
         $("#seedText").val(seedString);
+
+        return params;
       }
   
       function runOnce(params) {
@@ -324,12 +332,11 @@
   
         return [iterations, segregation];
       }
+
+
   
-      function runPlot() {
+      function runSamples(params) {
   
-  
-     
-        readInputs();
   
   
         $("#seedDiv").text(seedString);
@@ -368,9 +375,10 @@
           segregationRunningAvg += segregationRate;
         }
   
-        
-        $("#iterationsDiv").text(iterationsRunningAvg/(params.runXtimes-failedToStopCount));
-        $("#segregationDiv").text(segregationRunningAvg/(params.runXtimes-failedToStopCount));
+        var averageIterations = iterationsRunningAvg/(params.runXtimes-failedToStopCount);
+        var averageSegregation =  segregationRunningAvg/(params.runXtimes-failedToStopCount);
+        $("#iterationsDiv").text(averageIterations);
+        $("#segregationDiv").text(averageSegregation);
   
         // TODO: build a histogramIterations with the average number of iteration per population size relative to city size/ crowd size for minor or majority
         $("#paramsDiv").text(JSON.stringify(params));
@@ -412,9 +420,22 @@
 
         //  segregationHistogramLables = Object.keys(histogramSegregations).map(n=>n/segregationBins)
         histogramPlot("myDiv4", histogramSegregations,{main:'Histogram -  How Much Segregation at the End',xaxis:'Ending Segregation Rate',yaxis:'Frequency'});
+
+        return {averageIterations: averageIterations, averageSegregation: averageSegregation, error: 0, errorMessage: 'no error message'};        
       }
   
+      function runPlot(){
+           
+        params = readInputs({});
+  
+        runSamples(params);
+
+      }
+
       runPlot();
+
+
+
     </script>
   </body>
   
