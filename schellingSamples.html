@@ -1,0 +1,343 @@
+<head>
+    <!-- Plotly.js -->
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="plotly-latest.min.js"></script>
+    <script src="shelling-2.js"></script>
+    <script src="node_modules/seedrandom/seedrandom.min.js"></script>
+  </head>
+  
+  <body>
+    <div style="text-align: right">
+      <div>
+        <label for="seedText">Seed:</label><input type="text" id="seedText" />
+      </div>
+      <div>
+        <label for="xtimesText">Number of Times:</label
+        ><input type="text" id="xtimesText" />
+      </div>
+      <div>
+        <label for="occupancyText">Occupancy:</label
+        ><input type="text" id="occupancyText" />
+      </div>
+  
+      <div>
+        <label for="segmentThresholdText">Threshold:</label
+        ><input type="text" id="segmentThresholdText" />
+      </div>
+      <div>
+        <span>
+          <label for="propAText">Proportion A:</label
+          ><input type="text" id="propAText" />
+          <label for="propBText">Proportion B:</label
+          ><input type="text" id="propBText" />
+        </span>
+      </div>
+      <div>
+        <span>
+          <label for="cityAText">City Dimension:</label
+          ><input type="text" id="cityAText" />
+        </span>
+      </div>
+      <button type="button" id="runPlot" onclick="runPlot()">
+        click to run!
+      </button>
+      
+    </div>
+  
+    <div>
+      <div id="myDivX1"><!-- Plotly chart will be drawn inside this DIV --></div>
+      <div>
+        <label for="iterationsDiv">Iterations:</label>
+        <span id="iterationsDiv"></span>
+      </div>
+      <div>
+        <label for="segregationDiv">Average Segregation:</label>
+        <span id="segregationDiv"></span>
+      </div>
+      <div>
+        <label for="seedDiv">Seed:</label>
+        <span id="seedDiv"></span>
+      </div>
+      <div>
+        <label for="failedToStop">Failed to Stop:</label>
+        <span id="failedToStop"></span>
+      </div>
+      <div>
+        <label for="average">Average:</label>
+        <span id="average"></span>
+      </div>
+      <div>
+        <label for="paramsDiv">params = </label>
+        <span id="paramsDiv"></span>
+      </div>
+      <div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
+    </div>
+  
+    <script>
+      var params = {
+        runXtimes: 50,
+        cityHeight: 30,
+        cityWidth: 30,
+        occupancy: 0.9,
+        populationProportions: [0, 0.6, 0.4],
+        segmentRatio: 0.5,
+        seed: "hello"
+  
+        // Seed with one 2000
+        // seed: 0.8024624793347311
+        // seed: "0.8051979114263961"
+      };
+  
+      var oldSeed;
+      
+  
+      // Make randomness repeatable
+      var seedString;
+      if (params.seed === "") seedString = "hello";
+      else seedString = params.seed;
+  
+      $("#seedText").val(seedString);
+      $("#xtimesText").val(params.runXtimes);
+      $("#occupancyText").val(params.occupancy);
+      $("#segmentThresholdText").val(params.segmentRatio);
+      $("#propAText").val(params.populationProportions[1]);
+      $("#propBText").val(params.populationProportions[2]);
+      $("#cityAText").val(params.cityHeight);
+        
+      function graphPlot(divName, mat) {
+        //var [howLong, segmentedCount] = runShelling(cityMat, params);
+  
+        // var histogramIterations = runXtimes(params);
+  
+        var colorscaleValue = [[0, "#ffffff"], [0.5, "#001f3f"], [1, "#edf547"]];
+        var data = [
+          {
+            z: mat,
+            type: "heatmap",
+            colorscale: colorscaleValue,
+            showscale: false,
+            showticklabels: false
+          }
+        ];
+  
+        var axisTemplate = {
+          // range: [0, 1.6],
+          // autorange: false,
+          showgrid: false,
+          zeroline: false,
+          linecolor: "black",
+          showticklabels: false,
+          ticks: ""
+        };
+  
+        var layout = {
+          //title: "Heatmap with Unequal Block Sizes",
+          margin: {
+            t: 20,
+            r: 20,
+            b: 20,
+            l: 20
+          },
+          showlegend: false,
+          xaxis: axisTemplate,
+          yaxis: axisTemplate,
+          width: 300,
+          height: 300,
+          autosize: false
+        };
+  
+        Plotly.newPlot(divName, data, layout, { showSendToCloud: false });
+      }
+  
+      function linePlot(divName, x_array, y_array) {
+        var trace1 = {
+          x: x_array,
+          y: y_array,
+          mode: "lines+markers",
+          type: "scatter"
+        };
+  
+        var data = [trace1];
+  
+        var layout = {
+          //title: "Heatmap with Unequal Block Sizes",
+          margin: {
+            t: 60,
+            r: 60,
+            b: 60,
+            l: 60
+          },
+          // showlegend: true,
+          // xaxis: axisTemplate,
+          // yaxis: axisTemplate,
+          width: 600,
+          height: 400,
+          autosize: false,
+          title: {
+            text:'Histogram -  How long until equilibrium',
+            // font: {
+              // family: 'Courier New, monospace',
+              // size: 24
+            // },
+            xref: 'paper',
+            x: 0.05,
+          },
+          xaxis: {
+            automargin: true,
+            title: {
+              text: 'Number of iterations in simulation',
+              font: {
+                // family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+              }
+            },
+          },
+          yaxis: {
+            automargin: true,
+            title: {
+              text: 'Frequency',
+              font: {
+                // family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+              }
+            }
+          }
+        };
+  
+        Plotly.newPlot(divName, data, layout);
+      }
+  
+      function readInputs() {
+        if ($("#seedText").val() !== "") {
+          params.seed = seedString = $("#seedText").val();
+        }
+  
+        if ($("#xtimesText").val() !== "") {
+          params.runXtimes = $("#xtimesText").val();
+        }
+  
+        if ($("#occupancyText").val() !== "") {
+          params.occupancy = $("#occupancyText").val();
+        }
+  
+        if ($("#segmentThresholdText").val() !== "") {
+          params.segmentRatio = $("#segmentThresholdText").val();
+        }
+        if ($("#propAText").val() !== "") {
+          params.populationProportions[1] = $("#propAText").val();
+        }
+        if ($("#propBText").val() !== "") {
+          params.populationProportions[2] = $("#propBText").val();
+        }
+  
+        if ($("#cityAText").val() !== "") {
+          params.cityHeight = params.cityWidth = parseInt(
+            $("#cityAText").val(),
+            10
+          );
+        }
+  
+        
+        $("#seedText").val(seedString);
+      }
+  
+      function runOnce(params) {
+        var cityMat = Array(params.cityHeight)
+          .fill()
+          .map(() => Array(params.cityWidth).fill(0));
+  
+        populate(cityMat, params);
+  
+        var [iterations, segregation] = runShelling(
+          cityMat,
+          params,
+        );
+  
+        return [iterations, segregation];
+      }
+  
+      function runPlot() {
+  
+  
+     
+        readInputs();
+  
+  
+        $("#seedDiv").text(seedString);
+        Math.seedrandom(seedString);
+        $("#seedText").val(Math.random());
+  
+        var histogramIterations = [];
+        var histogramSegregations = [];
+  
+        var segregationAvg = 0.0;
+        var iterationsAvg = 0.0;
+  
+        var failedToStopCount = 0;
+        for (var i = 0; i < params.runXtimes; i++) {
+          [iterations, segregation] = runOnce(params);
+            if (iterations == -1 ) {
+                failedToStopCount ++
+                continue; // don't add this to the histogram
+
+            }
+          var index = iterations //.oString();
+          if (histogramIterations[index] == null) histogramIterations[index] = 1;
+          else histogramIterations[index]++;
+
+          iterationsAvg += iterations;
+          segregationAvg +=
+            segregation.pop() /
+            (params.cityHeight *
+              params.cityWidth *
+              params.occupancy);
+        }
+  
+        
+        $("#iterationsDiv").text(iterationsAvg/(params.runXtimes-failedToStopCount));
+        $("#segregationDiv").text(segregationAvg/(params.runXtimes-failedToStopCount));
+  
+        // TODO: build a histogramIterations with the average number of iteration per population size relative to city size/ crowd size for minor or majority
+        $("#paramsDiv").text(JSON.stringify(params));
+        // graphPlot("myDiv2", cityMat);
+  
+        $("#failedToStop").text(failedToStopCount)
+        // $("#failedToStop").text(failedToStopCount)
+        //   //params.cityHeight * params.cityWidth * params.occupancy
+        //   // Object.keys(histogramIterations)
+        //   // Object.keys(histogramIterations).length
+  
+        //   // histogramIterations.filter(number => number !== null)
+        //   function() {
+        //     if (histogramIterations[2000] !== null) {
+        //       return histogramIterations[2000];
+        //     } else {
+        //       return "none";
+        //     }
+        //   }
+        // );
+  
+        delete histogramIterations[2000];
+  
+        $("#average").text(average(histogramIterations));
+        
+        var lowRange = Object.keys(histogramIterations)[0]
+        var highRange = Object.keys(histogramIterations).pop();
+
+        for (var i = lowRange; i <= highRange; i++)
+        {
+            if (histogramIterations[i] == null ) 
+            histogramIterations[i]=0;
+        }
+
+
+        filteredHistogram = histogramIterations.filter(number => number !== null);
+        linePlot("myDiv3", [...Object.keys(histogramIterations)], [...filteredHistogram]);
+      }
+  
+      runPlot();
+    </script>
+  </body>
+  
