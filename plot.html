@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <section >
   <div style="text-align: right">
     <div>
       <label for="seedText">Seed:</label><input type="text" id="seedText" />
@@ -40,10 +41,12 @@
     </div>
     <button type="button" id="runPlot" onclick="runPlot()">Click Me!</button>
   </div>
-
+</section>
   <div>
+    <section class="container">
     <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
     <div id="myDiv2"><!-- Plotly chart will be drawn inside this DIV --></div>
+  </section>
     <div>
       <label for="seedDiv">Seed:</label>
       <span id="seedDiv"></span>
@@ -254,7 +257,7 @@
 
       $("#paramsDiv").text(JSON.stringify(params));
       graphPlot("myDiv2", cityMat);
-      linePlot("myDiv3", [...segregation.keys()], [...segregation]);
+      linePlot("myDiv3", segregation.keys(), segregation);
 
       $("#iterationsDiv").text(numberofInterations);
       $("#segregationDiv").text(

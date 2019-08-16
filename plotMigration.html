@@ -4,6 +4,7 @@
   <script src="plotly-latest.min.js"></script>
   <script src="shelling-3.js"></script>
   <script src="node_modules/seedrandom/seedrandom.min.js"></script>
+  <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -44,9 +45,12 @@
   </div>
 
   <div>
-    <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
-    <div id="myDiv2"><!-- Plotly chart will be drawn inside this DIV --></div>
-    <div id="myDiv22"><!-- Plotly chart will be drawn inside this DIV --></div>
+      
+    <section class="container">
+        <div class='one' id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div  class='two' id="myDiv2"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div  class='three' id="myDiv22"><!-- Plotly chart will be drawn inside this DIV --></div>
+  </section>
     <div>
       <label for="seedDiv">Seed:</label>
       <span id="seedDiv"></span>
@@ -138,34 +142,65 @@
       Plotly.newPlot(divName, data, layout, { showSendToCloud: false });
     }
 
-    function linePlot(divName, x_array, y_array) {
-      var trace1 = {
-        x: x_array,
-        y: y_array,
-        mode: "lines+markers",
-        type: "scatter"
-      };
-
-      var data = [trace1];
-
-      var layout = {
-        //title: "Heatmap with Unequal Block Sizes",
-        margin: {
-          t: 20,
-          r: 20,
-          b: 20,
-          l: 20
-        },
-        // showlegend: false,
-        // xaxis: axisTemplate,
-        // yaxis: axisTemplate,
-        width: 300,
-        height: 300,
-        autosize: false
-      };
-
-      Plotly.newPlot(divName, data, layout);
-    }
+    function linePlot(divName, x_array, y_array, titles) {
+        var trace1 = {
+          x: x_array,
+          y: y_array,
+          mode: "lines+markers",
+          type: "scatter",
+        };
+  
+        var data = [trace1];
+  
+        var layout = {
+          //title: "Heatmap with Unequal Block Sizes",
+          margin: {
+            t: 60,
+            r: 60,
+            b: 60,
+            l: 60
+          },
+          // showlegend: true,
+          // xaxis: axisTemplate,
+          // yaxis: axisTemplate,
+          width: 600,
+          height: 400,
+          autosize: false,
+          title: {
+            text: titles.main,
+            // font: {
+              // family: 'Courier New, monospace',
+              // size: 24
+            // },
+            xref: 'paper',
+            x: 0.05,
+          },
+          xaxis: {
+            automargin: true,
+            title: {
+              text: titles.xaxis,
+              font: {
+                // family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+              }
+            },
+          },
+          yaxis: {
+            automargin: true,
+            title: {
+              text: titles.yaxis,
+              font: {
+                // family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+              }
+            }
+          }
+        };
+  
+        Plotly.newPlot(divName, data, layout);
+      }
 
     function runPlot() {
       if ($("#seedText").val() !== "") {
@@ -234,7 +269,7 @@
       $("#paramsDiv").text(JSON.stringify(params));
       graphPlot("myDiv2", cityMat);
       graphPlot("myDiv22", suburbMat);
-      linePlot("myDiv3", [...segmentation.keys()], [...segmentation]);
+      linePlot("myDiv3", segmentation.keys(), segmentation,{main:"main title",xaxis:"xaxis",yaxis:"yaxis"});
     }
 
     runPlot();
