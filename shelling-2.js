@@ -61,47 +61,59 @@ function printMat(mat, params) {
   console.log("]");
 }
 
-function validProportions(populationProportions) {
-  var total = 0.0;
-  var positive = true;
+// function validProportions(populationProportions) {
+//   var total = 0.0;
+//   var positive = true;
 
-  populationProportions.forEach(number => {
-    positive = positive && 0 <= number;
-  });
+//   populationProportions.forEach(number => {
+//     positive = positive && 0 <= number;
+//   });
 
-  if (positive)
-    populationProportions.forEach(fraction => {
-      total += fraction;
-    });
+//   if (positive)
+//     populationProportions.forEach(fraction => {
+//       total += fraction;
+//     });
 
-  return positive && total <= 1;
-}
+//   return positive && total <= 1;
+// }
 
 function getPopulation(params) {
-  return params.cityHeight * params.cityWidth * params.occupancy;
+  return params.cityHeight * params.cityHeight * params.occupancy;
 }
 
-// verify total populationProportions are smaller than total vacancy
+
 function populate(cityMat, params) {
-  var { cityHeight, cityWidth, populationProportions } = params;
+  var { cityHeight, proportionPopA } = params;
   var populationSize = getPopulation(params);
 
-  for (var j = 0; j < populationProportions.length; j++) {
-    if (j == Segment.none) continue;
-    for (
-      var i = 0;
-      i < Math.floor(populationSize * populationProportions[j]);
-      i++
-    ) {
-      var m, n;
+  for (
+    var i = 0;
+    i < Math.floor(populationSize * proportionPopA);
+    i++
+  ) {
+    var m, n;
 
-      do {
-        m = rangeClosedOpen(0, cityHeight);
-        n = rangeClosedOpen(0, cityWidth);
-      } while (cityMat[m][n] != Segment.none);
-      cityMat[m][n] = j;
-    }
+    do {
+      m = rangeClosedOpen(0, cityHeight);
+      n = rangeClosedOpen(0, cityHeight);
+    } while (cityMat[m][n] != Segment.none);
+    cityMat[m][n] = Segment.type1;
   }
+
+  for (
+    var i = 0;
+    i < Math.floor(populationSize * (1-proportionPopA));
+    i++
+  ) {
+    var m, n;
+
+    do {
+      m = rangeClosedOpen(0, cityHeight);
+      n = rangeClosedOpen(0, cityHeight);
+    } while (cityMat[m][n] != Segment.none);
+    cityMat[m][n] = Segment.type2;
+  }
+  
   return cityMat;
 }
 
@@ -339,7 +351,8 @@ function runShelling(a, params) {
 
     if (!shuffle(a, params)) {
       console.error("Error finding a new place for a neighbor");
-      return [-1, segregatedCount, "Error finding a new place for a neighbor"];
+      // return [-1, segregatedCount, "Error finding a new place for a neighbor"];
+      return [iterationCount,segregatedCount, "Error finding a new place for a neighbor"];
     }
 
     discomforted = countUnconfortable(a, params);
@@ -370,17 +383,16 @@ function printList(params) {
     runXtimes,
     segmentRatio,
     cityHeight,
-    cityWidth,
     occupancy,
-    populationProportions,
+    proportionPopA,
     seed
   } = params;
   list = [
     { runXtimes },
     { cityHeight },
-    { cityWidth },
     { occupancy },
-    { populationProportions },
+    { proportionPopA },
+    { proportionPopA },
     { segmentRatio },
     { seed }
   ];
@@ -398,10 +410,10 @@ function runXtimes(params) {
 
   var histogram = [];
 
-  if (!validProportions(params.populationProportions)) {
-    console.log("invalid populationProportions list.");
-    return;
-  }
+  // if (!validProportions(params.populationProportions)) {
+  //   console.log("invalid populationProportions list.");
+  //   return;
+  // }
 
   //printList(params);
 
@@ -409,7 +421,7 @@ function runXtimes(params) {
   for (var i = 0; i < params.runXtimes; i++) {
     var cityMat = Array(params.cityHeight)
       .fill()
-      .map(() => Array(params.cityWidth).fill(0));
+      .map(() => Array(params.cityHeight).fill(0));
 
     populate(cityMat, params);
 
@@ -437,9 +449,8 @@ Object.freeze(Segment);
 var params = {
   runXtimes: 1,
   cityHeight: 10,
-  cityWidth: 10,
   occupancy: 0.9,
-  populationProportions: [0, 0.6, 0.4],
+  proportionPopA: 0.6,
   segmentRatio: 0.5
 };
 
@@ -449,7 +460,7 @@ function testRun0(params) {
 
   var cityMat = Array(params.cityHeight)
     .fill()
-    .map(() => Array(params.cityWidth).fill(0));
+    .map(() => Array(params.cityHeight).fill(0));
 
   populate(cityMat, params);
 
@@ -524,3 +535,55 @@ function testRun4(params) {
 //testRun2(params);
 
 const average = arr => arr.reduce((p, c) => p + c, 0) / Object.keys(arr).length;
+
+
+/**
+ * range()
+ *
+ * Returns an array of numbers between a start number and an end number incremented
+ * sequentially by a fixed number(step), beginning with either the start number or
+ * the end number depending on which is greater.
+ *
+ * @param {number} start (Required: The start number.)
+ * @param {number} end (Required: The end number. If end is less than start,
+ *  then the range begins with end instead of start and decrements instead of increment.)
+ * @param {number} step (Optional: The fixed increment or decrement step. Defaults to 1.)
+ *
+ * @return {array} (An array containing the range numbers.)
+ *
+ * @throws {TypeError} (If any of start, end and step is not a finite number.)
+ * @throws {Error} (If step is not a positive number.)
+ */
+function range(start, end, step = 1) {
+  
+  // Test that the first 3 arguments are finite numbers.
+  // Using Array.prototype.every() and Number.isFinite().
+  const allNumbers = [start, end, step].every(Number.isFinite);
+
+  // Throw an error if any of the first 3 arguments is not a finite number.
+  if (!allNumbers) {
+    throw new TypeError('range() expects only finite numbers as arguments.');
+  }
+  
+  // Ensure the step is always a positive number.
+  if (step <= 0) {
+    throw new Error('step must be a number greater than 0.');
+  }
+  
+  // When the start number is greater than the end number,
+  // modify the step for decrementing instead of incrementing.
+  if (start > end) {
+    step = -step;
+  }
+  
+  // Determine the length of the array to be returned.
+  // The length is incremented by 1 after Math.floor().
+  // This ensures that the end number is listed if it falls within the range.
+  const length = Math.floor(Math.abs((end - start) / step)) + 1;
+  
+  // Fill up a new array with the range numbers
+  // using Array.from() with a mapping function.
+  // Finally, return the new array.
+  return Array.from(Array(length), (x, index) => start + index * step);
+  
+}

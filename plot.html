@@ -15,10 +15,6 @@
       <label for="seedText">Seed:</label><input type="text" id="seedText" />
     </div>
     <div>
-      <label for="xtimesText">Number of Times:</label
-      ><input type="text" id="xtimesText" />
-    </div>
-    <div>
       <label for="cityHeight">Size of City (Square):</label
       ><input type="text" id="cityHeight" />
     </div>
@@ -35,8 +31,6 @@
       <span>
         <label for="propAText">Proportion A:</label
         ><input type="text" id="propAText" />
-        <label for="propBText">Proportion B:</label
-        ><input type="text" id="propBText" />
       </span>
     </div>
     <button type="button" id="runPlot" onclick="runPlot()">Click Me!</button>
@@ -70,9 +64,8 @@
     var params = {
       runXtimes: 1,
       cityHeight: 30,
-      cityWidth: 30,
       occupancy: 0.9,
-      populationProportions: [0, 0.6, 0.4],
+      proportionPopA:0.6,
       segmentRatio: 0.5,
       seed: ""
     };
@@ -80,15 +73,14 @@
     params = {
       runXtimes: "1",
       cityHeight: 30,
-      cityWidth: 30,
       occupancy: "0.9",
-      populationProportions: [0, "0.6", "0.4"],
+      proportionPopA: 0.6,
       segmentRatio: "0.5",
       seed: "hi"
     };
 
-    //params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.06499457532532817"}
-    // params = {"runXtimes":"1","cityHeight":30,"cityWidth":30,"occupancy":"0.9","populationProportions":[0,"0.6","0.4"],"segmentRatio":"0.5","seed":"0.8570219478381559"}
+    //params = {"runXtimes":"1","cityHeight":30,"occupancy":"0.9","proportionPopA":0.6,"segmentRatio":"0.5","seed":"0.06499457532532817"}
+    // params = {"runXtimes":"1","cityHeight":30,"occupancy":"0.9","proportionPopA":0.6,"segmentRatio":"0.5","seed":"0.8570219478381559"}
 
     // Make randomness repeatable
     var seedString;
@@ -96,12 +88,10 @@
     else seedString = params.seed;
 
     $("#seedText").val(seedString);
-    $("#xtimesText").val(params.runXtimes);
     $("#cityHeight").val(params.cityHeight);
     $("#occupancyText").val(params.occupancy);
     $("#segmentThresholdText").val(params.segmentRatio);
-    $("#propAText").val(params.populationProportions[1]);
-    $("#propBText").val(params.populationProportions[2]);
+    $("#propAText").val(params.proportionPopA);
 
     function graphPlot(divName, mat) {
       //var [howLong, segmentedCount] = runShelling(cityMat, params);
@@ -148,11 +138,11 @@
       Plotly.newPlot(divName, data, layout, { showSendToCloud: false });
     }
 
-    function linePlot(divName, x_array, y_array) {
+    function linePlot(divName, x_array, y_array,titles) {
       var trace1 = {
         x: x_array,
         y: y_array,
-        name: "Segregated Households",
+        name: titles.main,
         mode: "lines+markers",
         type: "scatter"
       };
@@ -174,7 +164,7 @@
         height: 400,
         autosize: false,
         title: {
-          text:'Segregated Households',
+          text: titles.main,
           // font: {
             // family: 'Courier New, monospace',
             // size: 24
@@ -185,7 +175,7 @@
         xaxis: {
           automargin: true,
           title: {
-            text: 'Iterations',
+            text: titles.xaxis,
             font: {
               // family: 'Courier New, monospace',
               size: 18,
@@ -196,7 +186,7 @@
         yaxis: {
           automargin: true,
           title: {
-            text: 'segragated households',
+            text: titles.yxaxis,
             font: {
               // family: 'Courier New, monospace',
               size: 18,
@@ -209,46 +199,49 @@
       Plotly.newPlot(divName, data, layout);
     }
 
-    function runPlot() {
+    function readInputs(initialParams) {
+        var params = {...initialParams};
 
-      if ($("#cityHeight").val() !== "") {
-        params.cityHeight = parseInt($("#cityHeight").val());
-        params.cityWidth = params.cityHeight;
+        if ($("#seedText").val() !== "") {
+          params.seed = seedString = $("#seedText").val();
+        }
+  
+        
+        if ($("#occupancyText").val() !== "") {
+          params.occupancy = parseFloat($("#occupancyText").val());
+        }
+  
+        if ($("#segmentThresholdText").val() !== "") {
+          params.segmentRatio = parseFloat($("#segmentThresholdText").val());
+        }
+
+        if ($("#propAText").val() !== "") {
+          params.proportionPopA = parseFloat($("#propAText").val());
+        }
+        
+        if ($("#cityHeight").val() !== "") {
+          params.cityHeight = parseInt($("#cityHeight").val());
+        }
+  
+
+        return params;
       }
+
+    function generateNewSeed(){
+      $("#seedText").val(Math.random());
+    }
+
+    function runSimulation(params){
+
+      Math.seedrandom(params.seed);
 
       var cityMat = Array(params.cityHeight)
         .fill()
-        .map(() => Array(params.cityWidth).fill(0));
+        .map(() => Array(params.cityHeight).fill(0));
 
       var mat = Array(params.cityHeight)
         .fill()
-        .map(() => Array(params.cityWidth).fill(0));
-
-      if ($("#seedText").val() !== "") {
-        params.seed = seedString = $("#seedText").val();
-      }
-
-      if ($("#xtimesText").val() !== "") {
-        params.runXtimes = $("#xtimesText").val();
-      }
-
-      
-      if ($("#occupancyText").val() !== "") {
-        params.occupancy = $("#occupancyText").val();
-      }
-      if ($("#segmentThresholdText").val() !== "") {
-        params.segmentRatio = $("#segmentThresholdText").val();
-      }
-      if ($("#propAText").val() !== "") {
-        params.populationProportions[1] = $("#propAText").val();
-      }
-      if ($("#propBText").val() !== "") {
-        params.populationProportions[2] = $("#propBText").val();
-      }
-
-      $("#seedDiv").text(seedString);
-      Math.seedrandom(seedString);
-      $("#seedText").val(Math.random());
+        .map(() => Array(params.cityHeight).fill(0));
 
       populate(cityMat, params);
       graphPlot("myDiv", cityMat);
@@ -257,13 +250,21 @@
 
       $("#paramsDiv").text(JSON.stringify(params));
       graphPlot("myDiv2", cityMat);
-      linePlot("myDiv3", segregation.keys(), segregation);
+      linePlot("myDiv3", segregation.keys(), segregation, {main:"Segregated Society after Simulation",xaxis:"Iterations Count", yaxis:"Number of Segregated Households"});
+
+      $("#seedDiv").text(seedString);
 
       $("#iterationsDiv").text(numberofInterations);
       $("#segregationDiv").text(
-        segregation.pop() / (params.cityHeight * params.cityWidth)
+        segregation.pop() / (params.cityHeight * params.cityHeight)
       );
+      generateNewSeed();
+    }
+    function runPlot() {
 
+      // params = {"cityHeight":30,"seed":"0.9908629232924524","runXtimes":"1","occupancy":"0.9","segmentRatio":"0.5","proportionPopA":"0.6"}
+      params = readInputs({});
+      runSimulation(params);
     }
 
     runPlot()

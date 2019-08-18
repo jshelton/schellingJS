@@ -9,6 +9,7 @@
   </head>
   
   <body>
+    <div class='container'>
     <div style="text-align: right">
       <div>
         <label for="seedText">Seed:</label><input type="text" id="seedText" />
@@ -27,12 +28,9 @@
         ><input type="text" id="segmentThresholdText" />
       </div>
       <div>
-        <span>
+        
           <label for="propAText">Proportion A:</label
           ><input type="text" id="propAText" />
-          <label for="propBText">Proportion B:</label
-          ><input type="text" id="propBText" />
-        </span>
       </div>
       <div>
         <span>
@@ -43,13 +41,38 @@
       <button type="button" id="runSamples" onclick="runPlot()">
         click to run!
       </button>
-      <button type="button" id="runSamplingTest" onclick="runSamplingTest()">
-        click to test Accross parameters.
-      </button>
       
+      <div style="margin:1em">
+        <div>
+          <select id="ddlParameterValue">
+              <option value="0">Occupancy</option>
+              <option value="1">Threshold</option>
+              <option value="2">Proportion A</option>
+              <option value="3">City A Size</option>
+
+            </select>
+          </div>
+          <div>
+            <span>
+                <label for="startValText">Start Value:</label
+                ><input type="text" id="startValText" size="4" />
+                <label for="endValText">End Value:</label
+                ><input type="text" id="endValText"  size="4" />
+                <label for="intervalValText">Interval:</label
+                  ><input type="text" id="intervalValText"   size="4" />  
+              </span>
+            </div>
+            <div>
+            <button type="button" id="runSamplingTest" onclick="runSamplingTest()">
+                click to test Accross parameters
+            </button>
+          </div>
+      </div>
+
+
     </div>
   
-    <div>
+    <div style="width: 400; margin: 1em">
       <div id="myDivX1"><!-- Plotly chart will be drawn inside this DIV --></div>
       <div>
         <label for="iterationsDiv">Iterations:</label>
@@ -76,6 +99,7 @@
         <span id="paramsDiv"></span>
       </div>
     </div>
+  </div>
     <div>
       <section class="container">
       <div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
@@ -86,20 +110,31 @@
       <div id="sampleSegragationsGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
     </section>
     </div>
-  
+
     <script>
+
+      parameterDict = ["occupancy","segmentRatio","proportionPopA","cityHeight"]
+      parameterDictReverse = {0:"occupancy",1:"segmentRatio",2:"proportionPopA",3:"cityHeight"}
+              
       var params = {
         runXtimes: 50,
-        cityHeight: 30,
-        cityWidth: 30,
+
         occupancy: 0.9,
-        populationProportions: [0, 0.6, 0.4],
+        proportionPopA: 0.6,
+        // populationProportions: [0, 0.6, 0.4],
+        cityHeight: 30,
         segmentRatio: 0.5,
-        seed: "hello"
+        seed: "hello",
   
         // Seed with one 2000
         // seed: 0.8024624793347311
         // seed: "0.8051979114263961"
+
+        startValue: 0,
+        endValue: .9,
+        intervalValue: .1,
+        parameterName: 'occupancy',
+
       };
   
       var oldSeed;
@@ -114,9 +149,14 @@
       $("#xtimesText").val(params.runXtimes);
       $("#occupancyText").val(params.occupancy);
       $("#segmentThresholdText").val(params.segmentRatio);
-      $("#propAText").val(params.populationProportions[1]);
-      $("#propBText").val(params.populationProportions[2]);
+      $("#propAText").val(params.proportionPopA);
+      // $("#propBText").val(params.populationProportions[2]);
       $("#cityAText").val(params.cityHeight);
+      $("#startValText").val(params.startValue);
+      $("#endValText").val(params.endValue);
+      $("#intervalValText").val(params.intervalValue);
+
+      $("#ddlParameterValue").prop('selectedIndex',parameterDictReverse[params.parameterName])
         
       function graphPlot(divName, mat) {
         //var [howLong, segmentedCount] = runShelling(cityMat, params);
@@ -296,33 +336,52 @@
           params.seed = seedString = $("#seedText").val();
         }
   
+        if ($("#ddlParameterValue").val() !== "") {
+          params.parameterName = parameterDict[parseInt($("#ddlParameterValue").prop('selectedIndex'))];
+        }
+  
+        
         if ($("#xtimesText").val() !== "") {
           params.runXtimes = parseInt($("#xtimesText").val());
         }
   
         if ($("#occupancyText").val() !== "") {
-          params.occupancy = $("#occupancyText").val();
+          params.occupancy = parseFloat($("#occupancyText").val());
         }
   
         if ($("#segmentThresholdText").val() !== "") {
-          params.segmentRatio = $("#segmentThresholdText").val();
+          params.segmentRatio = parseFloat($("#segmentThresholdText").val());
         }
 
         if ($("#propAText").val() !== "") {
-          if (params.populationProportions === undefined) 
-          params.populationProportions = [];
+          // if (params.populationProportions === undefined) 
+          // params.populationProportions = [];
 
-          params.populationProportions[1] = $("#propAText").val();
+          // params.populationProportions[1] = parseFloat($("#propAText").val());
+          params.proportionPopA = parseFloat($("#propAText").val());
+          //TODO: Should check if the input is accurate
+          // params.populationProportions[2] = 1 - params.populationProportions[1]
         }
-        if ($("#propBText").val() !== "") {
-          params.populationProportions[2] = $("#propBText").val();
-        }
+        
+        // if ($("#propBText").val() !== "") {
+          // params.populationProportions[2] = parseFloat($("#propBText").val());
+        // }
   
         if ($("#cityAText").val() !== "") {
-          params.cityHeight = params.cityWidth = parseInt(
-            $("#cityAText").val(),
-            10
-          );
+          params.cityHeight = parseInt($("#cityAText").val());
+        }
+  
+
+        if ($("#startValText").val() !== "") {
+          params.startValue =  parseFloat($("#startValText").val());
+        }
+  
+        if ($("#endValText").val() !== "") {
+          params.endValue =  parseFloat($("#endValText").val());
+        }
+  
+        if ($("#intervalValText").val() !== "") {
+          params.intervalValue = parseFloat($("#intervalValText").val());
         }
   
         
@@ -334,7 +393,7 @@
       function runOnce(params) {
         var cityMat = Array(params.cityHeight)
           .fill()
-          .map(() => Array(params.cityWidth).fill(0));
+          .map(() => Array(params.cityHeight).fill(0));
   
         populate(cityMat, params);
   
@@ -379,7 +438,7 @@
 
           var segregationRate = segregation.pop() /
             (params.cityHeight *
-              params.cityWidth *
+              params.cityHeight *
               params.occupancy );
 
           histogramSegregations.push(segregationRate)
@@ -399,7 +458,7 @@
   
         $("#failedToStop").text(failedToStopCount)
         // $("#failedToStop").text(failedToStopCount)
-        //   //params.cityHeight * params.cityWidth * params.occupancy
+        //   //params.cityHeight * params.cityHeight * params.occupancy
         //   // Object.keys(histogramIterations)
         //   // Object.keys(histogramIterations).length
   
@@ -445,11 +504,13 @@
 
       }
 
-    function sampleAcrossParameter(params, parameterName, valueRange ){
+    function sampleAcrossParameter(params, valueRange ){
 
         var averages = {};
         averages.iterations = []
         averages.segregations = []
+
+        var parameterName = params.parameterName;
 
         var errorCount = 0;
 
@@ -467,25 +528,37 @@
             averages.iterations.push(sampleInfo.averageIterations);
             averages.segregations.push(sampleInfo.averageSegregation);
           }
+
         });
         
         return {...averages,error:errorCount,errorMessage:"no errors"};
     }
 
 
+    
 
-      function testParameterRange(){
-        var range = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-        var aggregatedSamples = sampleAcrossParameter(params,'occupancy',range);
+      function testParameterRange(params){
+        
+        var start = params.startValue;
+        var end = params.endValue
+        var interval = params.intervalValue
+
+        var valueList = range(start,end,interval)
+        
+        var aggregatedSamples = sampleAcrossParameter(params,valueList);
         // return aggregatedSamples;
 
-        linePlot("sampleIterationsGraph", range, aggregatedSamples.iterations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
-        linePlot("sampleSegragationsGraph", range, aggregatedSamples.segregations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
+        linePlot("sampleIterationsGraph", valueList, aggregatedSamples.iterations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
+        linePlot("sampleSegragationsGraph", valueList, aggregatedSamples.segregations,{main:'Histogram -  How Much Segregation at the End',xaxis:'Ending Segregation Rate',yaxis:'Frequency'});
         
       }
       
       function runSamplingTest(){
-        testParameterRange();
+        params = readInputs({});
+
+
+        //put manual settings here
+        testParameterRange(params);
       }
 
       
