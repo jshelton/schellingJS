@@ -108,6 +108,7 @@
     <section class="container">
       <div id="sampleIterationsGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
       <div id="sampleSegragationsGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
+      <div id="sampleFailureGraph"><!-- Plotly chart will be drawn inside this DIV --></div>
     </section>
     </div>
 
@@ -115,6 +116,7 @@
 
       parameterDict = ["occupancy","segmentRatio","proportionPopA","cityHeight"]
       parameterDictReverse = {0:"occupancy",1:"segmentRatio",2:"proportionPopA",3:"cityHeight"}
+      parameterLabel = {"occupancy":"Occupancy Rate","segmentRatio":"Diversity Threshold","proportionPopA":"Population 1 Proportion","cityHeight":"Size of City"}
               
       var params = {
         runXtimes: 50,
@@ -203,7 +205,26 @@
         Plotly.newPlot(divName, data, layout, { showSendToCloud: false });
       }
   
-      function linePlot(divName, x_array, y_array, titles) {
+      function linePlot(divName, x_array, y_array,titles){
+        layout = {
+          title: {
+            text: titles.main
+          },
+          xaxis: {
+            title: {
+              text: titles.xaxis
+            }
+          },
+          yaxis: {
+            title: {
+              text: titles.yaxis
+            }
+          }
+        }
+        linePlot2(divName, x_array, y_array,layout)
+      }
+
+      function linePlot2(divName, x_array, y_array, layoutIn) {
         var trace1 = {
           x: x_array,
           y: y_array,
@@ -212,8 +233,8 @@
         };
   
         var data = [trace1];
-  
-        var layout = {
+        
+        var layout = { ...layoutIn,
           //title: "Heatmap with Unequal Block Sizes",
           margin: {
             t: 60,
@@ -228,7 +249,6 @@
           height: 400,
           autosize: false,
           title: {
-            text: titles.main,
             // font: {
               // family: 'Courier New, monospace',
               // size: 24
@@ -239,7 +259,6 @@
           xaxis: {
             automargin: true,
             title: {
-              text: titles.xaxis,
               font: {
                 // family: 'Courier New, monospace',
                 size: 18,
@@ -250,7 +269,6 @@
           yaxis: {
             automargin: true,
             title: {
-              text: titles.yaxis,
               font: {
                 // family: 'Courier New, monospace',
                 size: 18,
@@ -354,18 +372,9 @@
         }
 
         if ($("#propAText").val() !== "") {
-          // if (params.populationProportions === undefined) 
-          // params.populationProportions = [];
-
-          // params.populationProportions[1] = parseFloat($("#propAText").val());
           params.proportionPopA = parseFloat($("#propAText").val());
-          //TODO: Should check if the input is accurate
-          // params.populationProportions[2] = 1 - params.populationProportions[1]
         }
-        
-        // if ($("#propBText").val() !== "") {
-          // params.populationProportions[2] = parseFloat($("#propBText").val());
-        // }
+      
   
         if ($("#cityAText").val() !== "") {
           params.cityHeight = parseInt($("#cityAText").val());
@@ -397,12 +406,12 @@
   
         populate(cityMat, params);
   
-        var [iterations, segregation] = runShelling(
+        var [iterations, segregation,error] = runShelling(
           cityMat,
           params,
         );
   
-        return [iterations, segregation];
+        return [iterations, segregation,error];
       }
 
 
@@ -425,8 +434,8 @@
   
         var failedToStopCount = 0;
         for (var i = 0; i < params.runXtimes; i++) {
-          [iterations, segregation] = runOnce(params);
-            if (iterations == -1 ) {
+          [iterations, segregation, error] = runOnce(params);
+            if (error == -1 ) {
                 failedToStopCount ++
                 continue; // don't add this to the histogram
 
@@ -436,7 +445,7 @@
             histogramIterations[indexI] = 1;
           else histogramIterations[indexI]++;
 
-          var segregationRate = segregation.pop() /
+          var segregationRate = last(segregation) /
             (params.cityHeight *
               params.cityHeight *
               params.occupancy );
@@ -457,21 +466,6 @@
         // graphPlot("myDiv2", cityMat);
   
         $("#failedToStop").text(failedToStopCount)
-        // $("#failedToStop").text(failedToStopCount)
-        //   //params.cityHeight * params.cityHeight * params.occupancy
-        //   // Object.keys(histogramIterations)
-        //   // Object.keys(histogramIterations).length
-  
-        //   // histogramIterations.filter(number => number !== null)
-        //   function() {
-        //     if (histogramIterations[2000] !== null) {
-        //       return histogramIterations[2000];
-        //     } else {
-        //       return "none";
-        //     }
-        //   }
-        // );
-  
         delete histogramIterations[2000];
   
         $("#average").text(average(histogramIterations));
@@ -493,7 +487,7 @@
         //  segregationHistogramLables = Object.keys(histogramSegregations).map(n=>n/segregationBins)
         histogramPlot("myDiv4", histogramSegregations,{main:'Histogram -  How Much Segregation at the End',xaxis:'Ending Segregation Rate',yaxis:'Frequency'});
 
-        return {averageIterations: averageIterations, averageSegregation: averageSegregation, error: 0, errorMessage: 'no error message'};        
+        return {averageIterations: averageIterations, averageSegregation: averageSegregation, failures: failedToStopCount};
       }
   
       function runPlot(){
@@ -509,6 +503,7 @@
         var averages = {};
         averages.iterations = []
         averages.segregations = []
+        averages.failures = []
 
         var parameterName = params.parameterName;
 
@@ -521,12 +516,14 @@
 
           var sampleInfo = runSamples(p);
         
-          if (sampleInfo.error != 0 ) {
+          if (sampleInfo.failures != 0 ) {
             errorCount++;
           }
           else{
             averages.iterations.push(sampleInfo.averageIterations);
             averages.segregations.push(sampleInfo.averageSegregation);
+            averages.failures.push(sampleInfo.failures)
+
           }
 
         });
@@ -548,8 +545,11 @@
         var aggregatedSamples = sampleAcrossParameter(params,valueList);
         // return aggregatedSamples;
 
-        linePlot("sampleIterationsGraph", valueList, aggregatedSamples.iterations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Number of iterations in simulation',yaxis:'Frequency'});
-        linePlot("sampleSegragationsGraph", valueList, aggregatedSamples.segregations,{main:'Histogram -  How Much Segregation at the End',xaxis:'Ending Segregation Rate',yaxis:'Frequency'});
+        linePlot("sampleIterationsGraph", valueList, aggregatedSamples.iterations,{main:'Histogram -  How Long until Equilibrium',xaxis:'Value of parameter '+parameterLabel[params.parameterName],
+        yaxis:'Average Number of Iterations'});
+        linePlot("sampleSegragationsGraph", valueList, aggregatedSamples.segregations,{main:'Histogram -  How Much Segregation at the End',xaxis:'Value of parameter '+parameterLabel[params.parameterName],
+        yaxis:'Average Rate of Segregation'});
+        linePlot2("sampleFailureGraph", valueList, aggregatedSamples.failures);
         
       }
       

@@ -30,6 +30,8 @@ BgMagenta = "\x1b[45m";
 BgCyan = "\x1b[46m";
 BgWhite = "\x1b[47m";
 
+maximumIteration = 2000
+
 function init() {
   seedrandom.seedrandom("any string you like");
 }
@@ -187,7 +189,7 @@ function unconfortable(mat, i, j, seg, { segmentRatio }) {
   if (seg == Segment.none) return false;
   var counter = Array(Object.keys(Segment).length).fill(0);
 
-  for (var m = 0; m < 3; m++) {
+  for (var m = 0; m < 3 m++) {
     for (var n = 0; n < 3; n++) {
       var newI = i - m + 1;
       var newJ = j - n + 1;
@@ -224,7 +226,7 @@ function unconfortable(mat, i, j, seg, { segmentRatio }) {
   //     counter
   //   );
 
-  return counter[seg] / totalSurroundingPop < segmentRatio;
+  return counter[seg] / totalSurroundingPop > segmentRatio;
 }
 
 function countUnconfortable(mat, params) {
@@ -344,7 +346,7 @@ function runShelling(a, params) {
 
   var iterationCount = 0;
 
-  while (discomforted != 0 && iterationCount < 2000) {
+  while (discomforted != 0 && iterationCount < maximumIteration) {
     iterationCount++;
     //console.log("Discomfort ", discomforted, ",iteration", iterationCount);
     prevDiscomforted = discomforted;
@@ -352,7 +354,7 @@ function runShelling(a, params) {
     if (!shuffle(a, params)) {
       console.error("Error finding a new place for a neighbor");
       // return [-1, segregatedCount, "Error finding a new place for a neighbor"];
-      return [iterationCount,segregatedCount, "Error finding a new place for a neighbor"];
+      return [iterationCount,segregatedCount, -1, "Error finding a new place for a neighbor"];
     }
 
     discomforted = countUnconfortable(a, params);
@@ -375,7 +377,7 @@ function runShelling(a, params) {
     // }
   }
 
-  return [iterationCount, segregatedCount];
+  return [iterationCount, segregatedCount,0,"nothing wrong"];
 }
 
 function printList(params) {
@@ -586,4 +588,8 @@ function range(start, end, step = 1) {
   // Finally, return the new array.
   return Array.from(Array(length), (x, index) => start + index * step);
   
+}
+
+function last(array) {
+  return array[array.length - 1];
 }
